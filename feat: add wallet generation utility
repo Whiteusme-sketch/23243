@@ -1,0 +1,24 @@
+# utils/crypto_utils.py
+
+import hashlib
+import ecdsa
+import base58
+
+def generate_wallet():
+    """Generates a new private and public key pair for a cryptocurrency wallet."""
+    private_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+    public_key = private_key.get_verifying_key()
+    
+    sha256_pk = hashlib.sha256(public_key.to_string()).digest()
+    ripemd160 = hashlib.new('ripemd160', sha256_pk).digest()
+    address = base58.b58encode(b'\x00' + ripemd160).decode('utf-8')
+    
+    return {
+        "private_key": private_key.to_string().hex(),
+        "public_key": public_key.to_string().hex(),
+        "address": address
+    }
+
+if __name__ == "__main__":
+    wallet = generate_wallet()
+    print(f"New Wallet Generated: {wallet['address']}")
